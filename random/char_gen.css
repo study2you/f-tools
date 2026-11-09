@@ -84,3 +84,16 @@ code { background: #eef; padding: 1px 5px; border-radius: 4px; font-size: 13px; 
 }
 .copy-btn { font-size: 13px; white-space: nowrap; }
 .hint { color: #888; font-size: 13px; margin-top: 12px; }
+.tip {
+    margin-top: 20px;
+    border-left: 2px blue solid;
+    padding-left: 12px;
+}
+.tip .p1 {
+    color: #777; font-size: 15px; margin-bottom: 12px;
+}
+.tip .p2 {
+    color: #888; font-size: 13px; margin-bottom: 12px;
+    line-height: 2em;
+
+}

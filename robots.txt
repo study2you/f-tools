@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://study2you.github.io/f-tools/sitemap.xml
