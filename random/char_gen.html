@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>随机生成字符</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./char_gen.css">
+</head>
+<body>
+<a href="../index.html" style="display:inline-block;margin-bottom:16px;font-size:14px;color:#2563eb;text-decoration:none;">← 返回首页</a>
+<h1>随机生成字符</h1>
+
+<div class="row">
+    <label for="charLength">生成长度</label>
+    <input id="charLength" type="number" min="1" max="256" value="16"/>
+    <button type="button" class="step-btn" id="minusBtn" aria-label="减少长度">-</button>
+    <button type="button" class="step-btn" id="plusBtn" aria-label="增加长度">+</button>
+</div>
+
+<div class="row">
+    <label>字符种类</label>
+    <label class="chk"><input type="checkbox" name="charType" value="digit" checked/> <code>[0-9]</code></label>
+    <label class="chk"><input type="checkbox" name="charType" value="lower" checked/> <code>[a-z]</code></label>
+    <label class="chk"><input type="checkbox" name="charType" value="upper" checked/> <code>[A-Z]</code></label>
+    <label class="chk"><input type="checkbox" name="charType" value="symbol"/> <code>[!.,;*/+-=]</code></label>
+    <label class="chk"><input type="checkbox" name="removeChars" value="yes"/> 去掉字符：<code>[l10o]</code></label>
+</div>
+
+<div class="row">
+    <label for="genSize">生成个数</label>
+    <input id="genSize" type="number" min="1" max="100" value="1"/>
+</div>
+
+<div class="row">
+    <button class="gen-btn" id="genBtn">点击生成</button>
+</div>
+
+<div id="genContent"></div>
+
+<p class="hint">提示：所有计算均在浏览器本地完成，不会上传到任何服务器。</p>
+
+<script>
+    (function () {
+        'use strict';
+
+        // 字符池定义
+        var POOL = {
+            digit:  '0123456789',
+            lower:  'abcdefghijklmnopqrstuvwxyz',
+            upper:  'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            symbol: '!.,;*/+-='
+        };
+        var REMOVE_CHARS = 'l10o';
+
+        var charLengthInputEle = document.getElementById('charLength');
+        var genSizeInputEle = document.getElementById('genSize');
+        var genContentEle = document.getElementById('genContent');
+        var typeCheckboxes = document.querySelectorAll('input[name="charType"]');
+        var removeCheckbox = document.querySelector('input[name="removeChars"]');
+
+        // 长度加减
+        document.getElementById('minusBtn').addEventListener('click', function () {
+            charLengthInputEle.value = Math.max(1, (parseInt(charLengthInputEle.value, 10) || 1) - 1);
+        });
+        document.getElementById('plusBtn').addEventListener('click', function () {
+            charLengthInputEle.value = Math.min(256, (parseInt(charLengthInputEle.value, 10) || 0) + 1);
+        });
+
+        // 安全随机整数 [0, max)
+        function randomInt(max) {
+            if (max <= 0) return 0;
+            if (window.crypto && window.crypto.getRandomValues) {
+                var limit = Math.floor(0x100000000 / max) * max;
+                var arr = new Uint32Array(1);
+                do {
+                    window.crypto.getRandomValues(arr);
+                } while (arr[0] >= limit);
+                return arr[0] % max;
+            }
+            return Math.floor(Math.random() * max);
+        }
+
+        // 构建字符池
+        function buildPool() {
+            var pool = '';
+            typeCheckboxes.forEach(function (cb) {
+                if (cb.checked && POOL[cb.value]) pool += POOL[cb.value];
+            });
+            // 去重，避免某个字符因出现在多个种类中被重复加权（可选）
+            pool = Array.from(new Set(pool)).join('');
+
+            if (removeCheckbox.checked) {
+                pool = pool.split('').filter(function (c) {
+                    return REMOVE_CHARS.indexOf(c) === -1;
+                }).join('');
+            }
+            return pool;
+        }
+
+        // 生成一个随机字符串
+        function generateOne(length, pool) {
+            var out = '';
+            for (var i = 0; i < length; i++) {
+                out += pool.charAt(randomInt(pool.length));
+            }
+            return out;
+        }
+
+        // 复制到剪贴板
+        function copyText(text, btn) {
+            function done() {
+                var old = btn.textContent;
+                btn.textContent = '已复制';
+                setTimeout(function () { btn.textContent = old; }, 1200);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+            } else {
+                fallbackCopy(text, done);
+            }
+        }
+        function fallbackCopy(text, cb) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); cb && cb(); } catch (e) {}
+            document.body.removeChild(ta);
+        }
+
+        // 渲染结果
+        function render(items) {
+            genContentEle.innerHTML = '';
+            items.forEach(function (str) {
+                var row = document.createElement('div');
+                row.className = 'result';
+
+                var code = document.createElement('code');
+                code.textContent = str;
+
+                var btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.type = 'button';
+                btn.textContent = '复制';
+                btn.addEventListener('click', function () { copyText(str, btn); });
+
+                row.appendChild(code);
+                row.appendChild(btn);
+                genContentEle.appendChild(row);
+            });
+        }
+
+        // 主逻辑
+        document.getElementById('genBtn').addEventListener('click', function () {
+            var length = parseInt(charLengthInputEle.value, 10);
+            var size = parseInt(genSizeInputEle.value, 10);
+
+            if (!length || length < 1) { alert('生成长度至少为 1'); return; }
+            if (length > 256) { alert('生成长度不能超过 256'); return; }
+            if (!size || size < 1) { alert('生成个数至少为 1'); return; }
+            if (size > 100) { alert('生成个数不能超过 100'); return; }
+
+            var pool = buildPool();
+            if (!pool) { alert('请至少选择一种字符种类（或去掉字符后池为空）'); return; }
+
+            var items = [];
+            for (var i = 0; i < size; i++) items.push(generateOne(length, pool));
+            render(items);
+        });
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>f-tools/在线小工具</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px 16px 64px;
+            color: #222;
+            background: #fafafa;
+        }
+        h1 { font-size: 1.6rem; margin-bottom: 8px; }
+        .sub { color: #888; font-size: 14px; margin-bottom: 28px; }
+        .tool-list { display: flex; flex-direction: column; gap: 12px; }
+        .tool-card {
+            display: block;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 16px 18px;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .tool-card:hover {
+            border-color: #2563eb;
+            box-shadow: 0 2px 10px rgba(37, 99, 235, .08);
+        }
+        .tool-card h2 { font-size: 16px; margin: 0 0 4px; }
+        .tool-card p { margin: 0; font-size: 13px; color: #777; }
+    </style>
+</head>
+<body>
+<h1>f-tools/在线小工具</h1>
+<p class="sub">纯前端实现，所有计算在浏览器本地完成，不上传任何数据。</p>
+
+<div class="tool-list">
+    <a class="tool-card" href="./random/char_gen.html">
+        <h2>随机字符生成</h2>
+        <p>自定义长度、字符种类，一次生成多个随机字符串</p>
+    </a>
+
+    <!-- 以后加工具，复制上面这个 <a> 改标题和链接即可 -->
+</div>
+</body>
+</html>
